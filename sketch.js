@@ -5,7 +5,7 @@ let m, b;
 
 let cleared = false;
 
-const optimizer = tf.train.sgd(0.3); // stochastic gradient descent
+const optimizer = tf.train.adam(0.09);
 const loss = (pred, label) => pred.sub(label).square().mean(); // mean squared error
 
 function setup() {
@@ -51,7 +51,7 @@ function draw() {
           for (let i = 0; i < 30; i++) {
             let fakeX = random(-1, 1);
             X.push(fakeX);
-            Y.push(random(0, 1)*fakeX);
+            Y.push(random(-.8, .5)*fakeX);
           }
         }
       }
@@ -84,8 +84,8 @@ function resetCanvas(clear = false) {
 
   X = [];
   Y = [];
-  m = tf.variable(tf.scalar(random(1)));
-  b = tf.variable(tf.scalar(random(1)));
+  m = tf.variable(tf.scalar(random(-1, 1)));
+  b = tf.variable(tf.scalar(random(-1, 1)));
 
   // Clear #data
   let data = document.getElementById('data');
