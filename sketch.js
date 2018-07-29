@@ -53,7 +53,7 @@ function draw() {
 
   learningRate = slider.value();
   fill(255).strokeWeight(0).textSize(15);
-  text(learningRate, 20, 20);
+  text(`learning rate = ${learningRate}`, 20, 20);
   text(`y = ${m.dataSync()}x + ${b.dataSync()}`, 20, 35);
 
   tf.tidy(() => {
