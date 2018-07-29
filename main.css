@@ -8,12 +8,18 @@ header {
   font-family: 'Gaegu', sans-serif;
 }
 
-#canvas {
+#canvas-wrapper {
   margin: 0 0 1em 0;
-  display: flex;
+  display: block;
   justify-content: center;
   align-items: center;
 }
+  #canvas {
+    margin: 0 0 1em 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
 
 #data {
   margin: 1em 0 1em 0;
@@ -39,4 +45,8 @@ a {
   -moz-user-select: none;
   -ms-user-select: none;
   user-select: none;
+}
+
+button {
+  margin: 0 .2em 0 .2em;
 }
