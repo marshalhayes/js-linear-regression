@@ -3,9 +3,13 @@ let Y = [];
 
 let m, b;
 
-let cleared = false;
+let reset = false;
 
-const optimizer = tf.train.adam(0.09);
+let slider; // used to change learningRate
+let learningRate = 0.3;
+
+let optimizer;
+
 const loss = (pred, label) => pred.sub(label).square().mean(); // mean squared error
 
 function setup() {
@@ -19,11 +23,38 @@ function setup() {
     Y.push(y);
   });
 
+  slider = createSlider(0.001, 1, 0.3, 0.001);
+  slider.parent('canvas-wrapper');
+  slider.style('width', '150px');
+  slider.style('display', 'block');
+  slider.input(resetCanvas); // When the slider is moved, reset the canvas
+
+  let show = createButton('Show Data');
+  show.parent('canvas-wrapper');
+  show.mousePressed(showData);
+
+  let stop = createButton('Stop');
+  stop.parent('canvas-wrapper');
+  stop.mousePressed(() => {
+    noLoop();
+  });
+
+  let clear = createButton('Reset');
+  clear.parent('canvas-wrapper');
+  clear.mousePressed(() => {
+    resetCanvas(true);
+  });
+
   resetCanvas();
 }
 
 function draw() {
   background(0);
+
+  learningRate = slider.value();
+  fill(255).strokeWeight(0).textSize(15);
+  text(learningRate, 20, 20);
+  text(`y = ${m.dataSync()}x + ${b.dataSync()}`, 20, 35);
 
   tf.tidy(() => {
     if (X.length > 0) {
@@ -46,7 +77,7 @@ function draw() {
         line(x1, y1, x2, y2);
       });
     } else {
-        if (!cleared) {
+        if (!reset) {
           // Let's make some random data to begin with
           for (let i = 0; i < 30; i++) {
             let fakeX = random(-1, 1);
@@ -66,28 +97,31 @@ function draw() {
   }
 }
 
-function printData() {
+function showData() {
   let data = document.getElementById('data');
   data.innerText = null;
   if (X.length > 0) {
-    // Print x, y pairs
+    // Show x, y pairs
     for (let i = 0; i < X.length; i++) {
       data.innerText += `[${X[i]}, ${Y[i]}]\r\n`;
     }
-    // Show the fitted equation
-    data.innerText += `\r\ny = ${m.dataSync()}x + ${b.dataSync()}`;
   }
 }
 
 function resetCanvas(clear = false) {
-  cleared = clear;
+  reset = clear;
+
+  optimizer = tf.train.adam(learningRate);
 
   X = [];
   Y = [];
-  m = tf.variable(tf.scalar(random(-1, 1)));
-  b = tf.variable(tf.scalar(random(-1, 1)));
+
+  m = tf.variable(tf.scalar(0));
+  b = tf.variable(tf.scalar(0));
 
   // Clear #data
   let data = document.getElementById('data');
   data.innerText = null;
+
+  loop();
 }
