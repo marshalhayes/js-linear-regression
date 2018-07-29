@@ -2,7 +2,7 @@
 
 interactive linear regression in the browser
 
-![](images/linear-regression.png)
+![](images/canvas.png)
 
 ## Overview
 
