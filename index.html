@@ -7,6 +7,7 @@
     <link rel="stylesheet" type="text/css" href="main.css">
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@0.12.0"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.6.1/p5.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.6.1/addons/p5.dom.js"></script>
     <script src="sketch.js"></script>
   </head>
   <body>
@@ -18,9 +19,9 @@
       </header>
       <p>Click on the canvas to add data points</p>
     </div>
-    <div id="canvas"></div>
-    <button onclick="printData();">Print Data</button>
-    <button onclick="resetCanvas(true);">Clear</button>
+    <div id="canvas-wrapper">
+      <div id="canvas"></div>
+    </div>
     <div id="data"></div>
   </body>
 </html>
