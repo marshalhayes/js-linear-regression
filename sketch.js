@@ -10,7 +10,7 @@ let learningRate = 0.3;
 
 let optimizer;
 
-const loss = (pred, label) => pred.sub(label).square().mean(); // mean squared error
+const f = (pred, label) => pred.sub(label).square().mean(); // mean squared error
 
 function setup() {
   canvas = createCanvas(windowWidth, 400);
@@ -42,7 +42,7 @@ function setup() {
   let clear = createButton('Reset');
   clear.parent('canvas-wrapper');
   clear.mousePressed(() => {
-    resetCanvas(true);
+    resetCanvas();
   });
 
   resetCanvas();
@@ -59,7 +59,11 @@ function draw() {
   tf.tidy(() => {
     if (X.length > 0) {
       const y = tf.tensor1d(Y);
-      optimizer.minimize(() => loss(tf.tensor1d(X).mul(m).add(b), y));
+      optimizer.minimize(() => {
+        loss = f(tf.tensor1d(X).mul(m).add(b), y);
+        text(`mean squared error = ${loss.dataSync()[0]}`, 20, 50);
+        return loss;
+      });
 
       const lineX = [-1, 1];
 
@@ -76,16 +80,7 @@ function draw() {
         strokeWeight(2);
         line(x1, y1, x2, y2);
       });
-    } else {
-        if (!reset) {
-          // Let's make some random data to begin with
-          for (let i = 0; i < 30; i++) {
-            let fakeX = random(-1, 1);
-            X.push(fakeX);
-            Y.push(random(-.8, .5)*fakeX);
-          }
-        }
-      }
+    }
   });
 
   strokeWeight(8)
@@ -108,9 +103,7 @@ function showData() {
   }
 }
 
-function resetCanvas(clear = false) {
-  reset = clear;
-
+function resetCanvas() {
   optimizer = tf.train.adam(learningRate);
 
   X = [];
