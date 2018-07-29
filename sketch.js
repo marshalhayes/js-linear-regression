@@ -28,7 +28,7 @@ function setup() {
   slider.parent('canvas-wrapper');
   slider.style('width', '150px');
   slider.style('display', 'block');
-  slider.input(resetCanvas); // When the slider is moved, reset the canvas
+  slider.changed(resetCanvas); // When the slider is changed, reset the canvas
 
   optimizerSelect = createSelect();
   optimizerSelect.parent('canvas-wrapper');
