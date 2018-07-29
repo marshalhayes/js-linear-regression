@@ -5,22 +5,23 @@ let m, b;
 
 let reset = false;
 
-let slider; // used to change learningRate
+let slider;
+let optimizerSelect;
 let learningRate = 0.3;
-
-let optimizer;
 
 const f = (pred, label) => pred.sub(label).square().mean(); // mean squared error
 
 function setup() {
   canvas = createCanvas(windowWidth, 400);
   canvas.parent('canvas');
-  canvas.mousePressed(() => {
-    // Normalize x, y to (-1, 1) and add it to data
-    let x = map(mouseX, 0, width, -1, 1);
-    let y = map(mouseY, 0, height, 1, -1);
-    X.push(x);
-    Y.push(y);
+  canvas.mouseClicked(() => {
+    if (mouseButton === LEFT) {
+      // Normalize x, y to (-1, 1) and add it to data
+      let x = map(mouseX, 0, width, -1, 1);
+      let y = map(mouseY, 0, height, 1, -1);
+      X.push(x);
+      Y.push(y);
+    }
   });
 
   slider = createSlider(0.001, 1, 0.3, 0.001);
@@ -29,19 +30,25 @@ function setup() {
   slider.style('display', 'block');
   slider.input(resetCanvas); // When the slider is moved, reset the canvas
 
+  optimizerSelect = createSelect();
+  optimizerSelect.parent('canvas-wrapper');
+  optimizerSelect.option('sgd');
+  optimizerSelect.option('adam');
+  optimizerSelect.changed(resetCanvas);
+
   let show = createButton('Show Data');
   show.parent('canvas-wrapper');
-  show.mousePressed(showData);
+  show.mouseClicked(showData);
 
   let stop = createButton('Stop');
   stop.parent('canvas-wrapper');
-  stop.mousePressed(() => {
+  stop.mouseClicked(() => {
     noLoop();
   });
 
   let clear = createButton('Reset');
   clear.parent('canvas-wrapper');
-  clear.mousePressed(() => {
+  clear.mouseClicked(() => {
     resetCanvas();
   });
 
@@ -61,7 +68,10 @@ function draw() {
       const y = tf.tensor1d(Y);
       optimizer.minimize(() => {
         loss = f(tf.tensor1d(X).mul(m).add(b), y);
-        text(`mean squared error = ${loss.dataSync()[0]}`, 20, 50);
+        loss.data().then((mse) => {
+          fill(255).strokeWeight(0).textSize(15);
+          text(`mean squared error = ${mse}`, 20, 50);
+        });
         return loss;
       });
 
@@ -103,14 +113,26 @@ function showData() {
   }
 }
 
+/* resetCanvas is causing a memory leak...Each time resetCanvas is called
+more and more tensors are created. A fix is coming soon.
+
+It is most likely from recreating the optimizers.
+*/
 function resetCanvas() {
-  optimizer = tf.train.adam(learningRate);
+  const optimizers = {
+    'adam': tf.train.adam(learningRate),
+    'sgd': tf.train.sgd(learningRate)
+  }
+
+  tf.tidy(() => {
+    m = tf.variable(tf.scalar(0));
+    b = tf.variable(tf.scalar(0));
+
+    optimizer = optimizers[optimizerSelect.value()];
+  });
 
   X = [];
   Y = [];
-
-  m = tf.variable(tf.scalar(0));
-  b = tf.variable(tf.scalar(0));
 
   // Clear #data
   let data = document.getElementById('data');
