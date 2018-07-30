@@ -3,8 +3,6 @@ let Y = [];
 
 let m, b;
 
-let reset = false;
-
 let slider;
 let optimizerSelect;
 let learningRate = 0.3;
@@ -119,24 +117,28 @@ more and more tensors are created. A fix is coming soon.
 It is most likely from recreating the optimizers.
 */
 function resetCanvas() {
-  const optimizers = {
-    'adam': tf.train.adam(learningRate),
-    'sgd': tf.train.sgd(learningRate)
-  }
+  X = [];
+  Y = [];
 
-  tf.tidy(() => {
+  optimizer = tf.tidy(() => {
     m = tf.variable(tf.scalar(0));
     b = tf.variable(tf.scalar(0));
 
-    optimizer = optimizers[optimizerSelect.value()];
-  });
+    const optimizers = {
+      'adam': tf.train.adam(learningRate),
+      'sgd': tf.train.sgd(learningRate)
+    }
 
-  X = [];
-  Y = [];
+    return optimizers[optimizerSelect.value()];
+  });
 
   // Clear #data
   let data = document.getElementById('data');
   data.innerText = null;
 
   loop();
+}
+
+function windowResized() {
+  resizeCanvas(windowWidth, height);
 }
